@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 
 import MoviesList from "./components/MoviesList";
+import AddMovie from "./components/AddMovie";
 import "./App.css";
 
 function App() {
@@ -12,12 +13,11 @@ function App() {
 		setIsLoading(true);
 		setError(null);
 		try {
-			const response = await fetch("https://swapi.py4e.com/api/films/");
+			const response = await fetch("https://swapi.dev/api/films/");
 			if (!response.ok) {
-				throw new Error(
-					"COULD NOT LOAD MOVIES CHECK YOUR INTERNET CONNECTION!!!",
-				);
+				throw new Error("CANT FIND MOVE CHECK YOUR INTERNET CONNECTION!!");
 			}
+
 			const data = await response.json();
 
 			const transformedMovies = data.results.map((movieData) => {
@@ -39,19 +39,33 @@ function App() {
 		fetchMoviesHandler();
 	}, [fetchMoviesHandler]);
 
+	function addMovieHandler(movie) {
+		console.log(movie);
+	}
+
+	let content = <p>Found no movies.</p>;
+
+	if (movies.length > 0) {
+		content = <MoviesList movies={movies} />;
+	}
+
+	if (error) {
+		content = <p>{error}</p>;
+	}
+
+	if (isLoading) {
+		content = <p className="page">Loading...Loading...Loading...</p>;
+	}
+
 	return (
 		<React.Fragment>
 			<section>
-				<button onClick={fetchMoviesHandler}>SEARCH MOVIES</button>
+				<AddMovie onAddMovie={addMovieHandler} />
 			</section>
 			<section>
-				{!isLoading && movies.length > 0 && <MoviesList movies={movies} />}
-				{!isLoading && movies.length === 0 && !console.error && (
-					<p>FOUND NO MOVIES </p>
-				)}
-				{!isLoading && error && <p>{error}</p>}
-				{isLoading && <p className="page">LOADING... LOADING... LOADING...</p>}
+				<button onClick={fetchMoviesHandler}>Fetch Movies</button>
 			</section>
+			<section>{content}</section>
 		</React.Fragment>
 	);
 }
